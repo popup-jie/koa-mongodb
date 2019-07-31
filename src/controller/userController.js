@@ -1,21 +1,29 @@
+import Promise from 'bluebird'
 import uuid from 'uuid'
 import utils from 'utility'
 import User from '../model/user'
+import UserInfo from '../model/userinfo'
 import ApiError from '../error/ApiError'
 import ApiErrorNames from '../error/ApiErrorNames'
-
-const filter = { 'userPass': 0, '__v': 0 }
+import * as regex from '../config/regex'
+import { secret } from '../config/index'
+import * as jwt from 'jsonwebtoken'
+const verify = Promise.promisify(jwt.verify)
+const filter = { 'userPass': 0, '__v': 0, '_id': 0 }
 
 class UserController {
   static async getAllUser(ctx) {
     ctx.body = await User.find({}, filter)
   }
 
-  // 用户登录
+  // 用户登录 账号密码登陆
   static async loginUser(ctx) {
-    let { userName, userPass } = ctx.query.body
+    let { userName, userPass } = ctx.request.body
     if (!userName) {
       throw new ApiError(ApiErrorNames.UserNameNotNull);
+    }
+    if (!regex.emailCheck.test(userName)) {
+      throw new ApiError(ApiErrorNames.UserEmailInvalid)
     }
 
     let hasUser = await User.findOne({ userName: userName });
@@ -23,13 +31,15 @@ class UserController {
       throw new ApiError(ApiErrorNames.UserNotExist);
     }
 
-    let log = await User.findOne({ userName: userName, userPass: userPass })
-    if (!log) {
-      throw new ApiError(ApiErrorNames.UserPassInvalid);
-    }
+    await login(ctx, userName, userPass)
+  }
 
-    ctx.body = log
-
+  // 用户登陆 token登陆
+  static async userTokenLogin(ctx) {
+    let token = ctx.request.headers['authorization']
+    let payload = await verify(token, secret)
+    let { userName, userPass } = payload
+    ctx.body = login(ctx, userName, userPass)
   }
 
 
@@ -50,6 +60,18 @@ class UserController {
     if (!userName) {
       throw new ApiError(ApiErrorNames.UserNameNotNull);
     }
+    if (!regex.emailCheck.test(userName)) {
+      throw new ApiError(ApiErrorNames.UserEmailInvalid)
+    }
+
+    if (userPass.length < 6) {
+      throw new ApiError(ApiErrorNames.UserPassMinLength)
+    }
+
+    if (userPass.length > 12) {
+      throw new ApiError(ApiErrorNames.UserPassMaxLength)
+    }
+
     let selectuser = await User.findOne({ userName: userName })
     if (selectuser) {
       throw new ApiError(ApiErrorNames.UserIsExist);
@@ -75,5 +97,19 @@ function md5Pwd(pwd) {
   const salt = 'gold_like_popup@mid!POS##'
   return utils.md5(utils.md5(pwd + salt))
 }
+
+async function login(ctx, userName, userPass) {
+  let log = await User.findOne({ userName: userName, userPass: md5Pwd(userPass) }, filter)
+  if (!log) {
+    throw new ApiError(ApiErrorNames.UserPassInvalid);
+  }
+  let payload = { userName: userName, time: new Date().getTime(), timeout: 10000, userPass: userPass }
+  let token = jwt.sign(payload, secret);
+  return ctx.body = {
+    userInfo: log,
+    token: token
+  }
+}
+
 
 export default UserController

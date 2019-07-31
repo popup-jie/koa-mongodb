@@ -5,6 +5,7 @@ const router = new Router({
 });
 
 router.get('/list', UserController.getAllUser)
+router.post('/loginUser', UserController.loginUser)
 router.post('/saveUser', UserController.saveUser)
 router.get('/remove', UserController.removeUser)
 

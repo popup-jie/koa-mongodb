@@ -17,3 +17,5 @@ export const defaultSchemaOptions = {
     updatedAt: 'updateTime'
   }
 };
+
+export const secret = 'mytoken'

@@ -5,6 +5,7 @@ import onerror from 'koa-onerror'
 import bodyparser from 'koa-bodyparser'
 import logger from 'koa-logger'
 import responseFilter from './middleware/responseFilter'
+import tokenVerify from './middleware/tokenVerify'
 import user from './router/user'
 
 const app = new Koa()
@@ -19,7 +20,7 @@ app.use(json())
 // app.use(logger())
 
 app.use(responseFilter())
-
+app.use(tokenVerify)
 
 app.use(user.routes()).use(user.allowedMethods())
 
