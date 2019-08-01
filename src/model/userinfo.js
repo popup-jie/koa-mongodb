@@ -4,29 +4,33 @@ import { defaultSchemaExtend, defaultSchemaOptions } from '../config/index'
 const Schema = mongoose.Schema
 
 const UserInfoSchema = new Schema(Object.assign({
-  Userid: {
-    type: String,
-    required: true
-  },
   NickName: {
     type: String,
-    required: true
+    default: ''
   },
   avatar: {
     type: String,
-    required: true
+    default: ''
   },
   area: {
-    type: String
+    type: String,
+    default: ''
   },
   sex: {
-    type: Boolean
+    type: Boolean,
+    default: 0
   },
   birthdate: {
-    type: String
+    type: String,
+    default: ''
   },
   sign: {
-    type: String
+    type: String,
+    default: ''
+  },
+  lemonCount: {
+    type: Number,
+    default: 0
   }
 
 }, defaultSchemaExtend), defaultSchemaOptions)

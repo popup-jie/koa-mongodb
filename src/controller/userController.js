@@ -12,6 +12,7 @@ const verify = Promise.promisify(jwt.verify)
 const filter = { 'userPass': 0, '__v': 0, '_id': 0 }
 
 class UserController {
+
   static async getAllUser(ctx) {
     ctx.body = await User.find({}, filter)
   }
@@ -26,33 +27,26 @@ class UserController {
       throw new ApiError(ApiErrorNames.UserEmailInvalid)
     }
 
-    let hasUser = await User.findOne({ userName: userName });
+    let hasUser = await User.findOne({ userName: userName })
     if (!hasUser) {
       throw new ApiError(ApiErrorNames.UserNotExist);
     }
 
-    await login(ctx, userName, userPass)
+    await loginHanlde(ctx, userName, userPass)
   }
 
   // 用户登陆 token登陆
   static async userTokenLogin(ctx) {
     let token = ctx.request.headers['authorization']
     let payload = await verify(token, secret)
-    let { userName, userPass } = payload
-    ctx.body = login(ctx, userName, userPass)
-  }
-
-
-  static async getUserById(ctx) {
-    let id = ctx.query.id;
-    let user = await User.findOne({ id: id });
-    if (user) {
-      ctx.body = user;
-    } else {
-      throw new ApiError(ApiErrorNames.UserNotExist);
+    let { userName } = payload
+    let _user = await User.findOne({ userName: userName })
+    let _token = getUserToken(userName)
+    ctx.body = {
+      user: _user,
+      token: _token
     }
   }
-
 
   // 用户注册
   static async saveUser(ctx) {
@@ -76,13 +70,19 @@ class UserController {
     if (selectuser) {
       throw new ApiError(ApiErrorNames.UserIsExist);
     } else {
+      // 初始化当前用户信息 相信内容表，并关联用户表
+      let _info = new UserInfo()
+      await _info.save(err => {
+        if (err) throw new ApiError();
+      })
       let user = new User({
         userName: userName || admin,
         userPass: md5Pwd(userPass),
-        userid: uuid.v1()
+        userid: uuid.v1(),
+        userInfo: _info._id
       });
-      user = await user.save();
-      ctx.body = user;
+      await user.save();
+      await loginHanlde(ctx, userName, userPass)
     }
   }
 
@@ -93,23 +93,27 @@ class UserController {
   }
 }
 
+function getUserToken(userName) {
+  let payload = { userName: userName, time: new Date().getTime(), timeout: 10000 }
+  let token = jwt.sign(payload, secret);
+  return token
+}
+
+async function loginHanlde(ctx, userName, userPass) {
+  let user = await User.findOne({ userName: userName, userPass: md5Pwd(userPass) }, filter).populate('userInfo', filter)
+  if (!user) {
+    throw new ApiError(ApiErrorNames.UserPassInvalid);
+  }
+  let _token = getUserToken(userName)
+  return ctx.body = {
+    user: user,
+    token: _token
+  }
+}
+
 function md5Pwd(pwd) {
   const salt = 'gold_like_popup@mid!POS##'
   return utils.md5(utils.md5(pwd + salt))
 }
 
-async function login(ctx, userName, userPass) {
-  let log = await User.findOne({ userName: userName, userPass: md5Pwd(userPass) }, filter)
-  if (!log) {
-    throw new ApiError(ApiErrorNames.UserPassInvalid);
-  }
-  let payload = { userName: userName, time: new Date().getTime(), timeout: 10000, userPass: userPass }
-  let token = jwt.sign(payload, secret);
-  return ctx.body = {
-    userInfo: log,
-    token: token
-  }
-}
-
-
-export default UserController
+export default UserController;
