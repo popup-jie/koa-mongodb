@@ -11,6 +11,7 @@
   "dependencies": {
     "babel-polyfill": "^6.26.0",
     "bluebird": "^3.5.5",
+    "busboy": "^0.3.1",
     "debug": "^4.1.1",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.7.0",
@@ -23,6 +24,7 @@
     "koa-static": "^5.0.0",
     "koa-views": "^6.2.0",
     "mongoose": "^5.6.5",
+    "qiniu": "^7.2.2",
     "utility": "^1.16.1",
     "uuid": "^3.3.2"
   },
