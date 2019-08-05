@@ -1,7 +1,4 @@
-import Promise from 'bluebird'
-import * as jwt from 'jsonwebtoken'
-const verify = Promise.promisify(jwt.verify)
-import { secret } from '../config/index'
+import JsonToken from '../utils/jsontoken'
 import ApiErrorNames from '../error/ApiErrorNames'
 import ApiError from '../error/ApiError'
 
@@ -14,9 +11,7 @@ async function tokenVerify(ctx, next) {
   if (AvoidList.indexOf(url) > -1) {
     await next()
   } else {
-    let token = ctx.request.headers['authorization']
-    let payload = await verify(token, secret)
-    let { time, timeout } = payload
+    let { time, timeout } = JsonToken.getUserToken(ctx)
     let data = new Date().getTime();
     if (data - time <= timeout) {
       // 未过期

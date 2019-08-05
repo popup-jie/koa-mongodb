@@ -1,14 +1,10 @@
-import Promise from 'bluebird'
-import uuid from 'uuid'
 import utils from 'utility'
 import User from '../model/user'
 import UserInfo from '../model/userinfo'
 import ApiError from '../error/ApiError'
 import ApiErrorNames from '../error/ApiErrorNames'
 import * as regex from '../config/regex'
-import { secret } from '../config/index'
-import * as jwt from 'jsonwebtoken'
-const verify = Promise.promisify(jwt.verify)
+import Jsontoken from '../utils/jsontoken'
 const filter = { 'userPass': 0, '__v': 0, '_id': 0 }
 
 class UserController {
@@ -32,16 +28,14 @@ class UserController {
       throw new ApiError(ApiErrorNames.UserNotExist);
     }
 
-    await loginHanlde(ctx, userName, userPass)
+    await loginHanlde(ctx, userName, userPass, hasUser)
   }
 
   // 用户登陆 token登陆
   static async userTokenLogin(ctx) {
-    let token = ctx.request.headers['authorization']
-    let payload = await verify(token, secret)
-    let { userName } = payload
+    let { userName, userid } = await Jsontoken.getUserToken(ctx)
     let _user = await User.findOne({ userName: userName })
-    let _token = getUserToken(userName)
+    let _token = Jsontoken.setUserToken(userName, userid)
     ctx.body = {
       user: _user,
       token: _token
@@ -78,11 +72,10 @@ class UserController {
       let user = new User({
         userName: userName || admin,
         userPass: md5Pwd(userPass),
-        userid: uuid.v1(),
         userInfo: _info._id
       });
       await user.save();
-      await loginHanlde(ctx, userName, userPass)
+      await loginHanlde(ctx, userName, userPass, user)
     }
   }
 
@@ -93,18 +86,12 @@ class UserController {
   }
 }
 
-function getUserToken(userName) {
-  let payload = { userName: userName, time: new Date().getTime(), timeout: 10000 }
-  let token = jwt.sign(payload, secret);
-  return token
-}
-
-async function loginHanlde(ctx, userName, userPass) {
+async function loginHanlde(ctx, userName, userPass, u) {
   let user = await User.findOne({ userName: userName, userPass: md5Pwd(userPass) }, filter).populate('userInfo', filter)
   if (!user) {
     throw new ApiError(ApiErrorNames.UserPassInvalid);
   }
-  let _token = getUserToken(userName)
+  let _token = Jsontoken.setUserToken(userName, u._id)
   return ctx.body = {
     user: user,
     token: _token

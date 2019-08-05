@@ -12,10 +12,6 @@ const UserSchema = new Schema(Object.assign({
     type: String,
     required: true
   },
-  userid: {
-    type: String,
-    required: true
-  },
   userInfo: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'UserInfo'
