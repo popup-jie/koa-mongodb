@@ -7,7 +7,7 @@ const ApiErrorNames = {
   UserEmailInvalid: { code: 1005, message: '邮箱格式不正确' },
   UserPassMinLength: { code: 1006, message: '密码长度不能小于6位' },
   UserPassMaxLength: { code: 1007, message: '密码长度不能大于12位' },
-  UserTokenVaild: { code: 201, message: 'token过期' },
+  UserTokenVaild: { code: -201, message: 'token过期' },
 
   ArticleCoverVaild: { code: 3001, message: '文章封面图片路径无效' },
   ArticleTitleVaild: { code: 3002, message: '文章标题不能为空' },

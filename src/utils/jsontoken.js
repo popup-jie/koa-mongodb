@@ -5,7 +5,7 @@ const verify = Promise.promisify(jwt.verify)
 
 class JsonToken {
   setUserToken(userName, userid) {
-    let payload = { userName: userName, time: new Date().getTime(), timeout: 10000, userid: userid }
+    let payload = { userName: userName, time: new Date().getTime(), timeout: 3600 * 60 * 4 * 1000, userid: userid }
     let token = jwt.sign(payload, secret);
     return token
   }

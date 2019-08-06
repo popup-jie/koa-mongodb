@@ -34,7 +34,7 @@ class UserController {
   // 用户登陆 token登陆
   static async userTokenLogin(ctx) {
     let { userName, userid } = await Jsontoken.getUserToken(ctx)
-    let _user = await User.findOne({ userName: userName })
+    let _user = await User.findOne({ userName: userName }, filter)
     let _token = Jsontoken.setUserToken(userName, userid)
     ctx.body = {
       user: _user,
@@ -77,6 +77,11 @@ class UserController {
       await user.save();
       await loginHanlde(ctx, userName, userPass, user)
     }
+  }
+
+  // 退出
+  static async signOut(ctx) {
+    ctx.body = {}
   }
 
   static async removeUser(ctx) {

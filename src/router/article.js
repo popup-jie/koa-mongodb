@@ -4,6 +4,10 @@ const router = new Router({
   prefix: '/article'
 });
 
-router.get('/submit', ArticleController.submit)
+router.post('/submit', ArticleController.submit)
+router.get('/getlist', ArticleController.getlist)
+
 
 module.exports = router
+
+

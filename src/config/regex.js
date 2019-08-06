@@ -4,7 +4,7 @@ const ImgCheck = /^http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/
 
 const urlCheck = /^http(s)?:\/\/.+\..+/i
 
-export {
+export default {
   emailCheck,
   ImgCheck,
   urlCheck

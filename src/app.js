@@ -7,7 +7,8 @@ import logger from 'koa-logger'
 import responseFilter from './middleware/responseFilter'
 import tokenVerify from './middleware/tokenVerify'
 import user from './router/user'
-
+import file from './router/upload'
+import article from './router/article'
 const app = new Koa()
 // error handler
 onerror(app)
@@ -23,6 +24,9 @@ app.use(responseFilter())
 app.use(tokenVerify)
 
 app.use(user.routes()).use(user.allowedMethods())
+app.use(file.routes()).use(file.allowedMethods())
+app.use(article.routes()).use(article.allowedMethods())
+
 
 // logger
 // app.use(async (ctx, next) => {

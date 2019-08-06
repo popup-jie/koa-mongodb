@@ -31,9 +31,17 @@ const ArticleSchema = new Schema(Object.assign({
   content: {
     type: String
   },
-  userid: {
+  userid: { // 绑定user表 _id 
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  isEditLabel: { // 标签栏是否允许编辑
+    type: Boolean,
+    default: false
+  },
+  status: { // 0 未审核 1 审核通过 2审核不通过
+    type: Number,
+    default: 0
   }
 }, defaultSchemaExtend), defaultSchemaOptions)
 
