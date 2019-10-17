@@ -7,8 +7,12 @@ const ApiErrorNames = {
   UserEmailInvalid: { code: 1005, message: '邮箱格式不正确' },
   UserPassMinLength: { code: 1006, message: '密码长度不能小于6位' },
   UserPassMaxLength: { code: 1007, message: '密码长度不能大于12位' },
+  UserPassNotEqual: { code: 1007, message: '密码长度不能大于12位' },
+  UserNickNameNotNull: { code: 1008, message: '昵称不能为空' },
+  UserAvatarNotNull: { code: 1009, message: '头像不能为空' },
+  UserAreaNotNull: { code: 1010, message: '区域不能为空' },
+  UserBirthdateNotNull: { code: 1012, message: '生日不能为空' },
   UserTokenVaild: { code: -201, message: 'token过期' },
-
   ArticleCoverVaild: { code: 3001, message: '文章封面图片路径无效' },
   ArticleTitleVaild: { code: 3002, message: '文章标题不能为空' },
   ArticleLabelVaild: { code: 3003, message: '文章标签不能为空' },

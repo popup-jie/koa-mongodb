@@ -38,7 +38,40 @@ class ArticleController {
     await article.save()
   }
 
+  static async getArticleList(ctx) {
+    let { page = 1, pageNum = 10, keyword, status = 'all', sortType = 'createTime', subarea = 'all' } = ctx.request.query
+    let { userid } = await Jsontoken.getUserToken(ctx)
+    const reg = new RegExp(keyword, 'i')
+    let contianer = {
+      userid: userid,
+      $or: [
+        { title: { $regex: reg } }
+      ]
+    }
+
+    if (status !== 'all') {
+      contianer.status = status
+    }
+    if (subarea !== 'all') {
+      contianer.subarea = subarea
+    }
+
+    let count = await Article.count(contianer)
+
+    let res = await Article.find(contianer).sort({ [sortType]: -1 }).skip((page - 1) * pageNum).limit(pageNum)
+
+    ctx.body = {
+      totalPage: Math.ceil(count / pageNum),
+      totalCount: count,
+      list: res,
+      page,
+      pageNum
+    }
+  }
+
   static async getlist(ctx) {
+    // console.log(ctx.request.query)
+
     let _s = await Article.find({}, filter).populate('userid', filter)
     ctx.body = _s
   }

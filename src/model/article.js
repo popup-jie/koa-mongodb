@@ -39,7 +39,27 @@ const ArticleSchema = new Schema(Object.assign({
     type: Boolean,
     default: false
   },
-  status: { // 0 未审核 1 审核通过 2审核不通过
+  lookCount: { // 查看次数
+    type: Number,
+    default: 0
+  },
+  discount: { //  评论数
+    type: Number,
+    default: 0
+  },
+  collect: { //  收藏数
+    type: Number,
+    default: 0
+  },
+  zanCount: { //  点赞数
+    type: Number,
+    default: 0
+  },
+  subarea: { // 生活0 资源1
+    type: Number,
+    default: 0
+  },
+  status: { // 0 未审核 1 审核通过 2审核不通过 3是通过
     type: Number,
     default: 0
   }

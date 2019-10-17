@@ -4,7 +4,7 @@ import { defaultSchemaExtend, defaultSchemaOptions } from '../config/index'
 const Schema = mongoose.Schema
 
 const UserInfoSchema = new Schema(Object.assign({
-  NickName: {
+  nickName: {
     type: String,
     default: ''
   },

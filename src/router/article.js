@@ -6,7 +6,7 @@ const router = new Router({
 
 router.post('/submit', ArticleController.submit)
 router.get('/getlist', ArticleController.getlist)
-
+router.get('/getArticleList', ArticleController.getArticleList)
 
 module.exports = router
 

@@ -34,7 +34,7 @@ class UserController {
   // 用户登陆 token登陆
   static async userTokenLogin(ctx) {
     let { userName, userid } = await Jsontoken.getUserToken(ctx)
-    let _user = await User.findOne({ userName: userName }, filter)
+    let _user = await User.findOne({ userName: userName }, filter).populate('userInfo')
     let _token = Jsontoken.setUserToken(userName, userid)
     ctx.body = {
       user: _user,
@@ -77,6 +77,29 @@ class UserController {
       await user.save();
       await loginHanlde(ctx, userName, userPass, user)
     }
+  }
+
+  // 修改密码
+  static async userChangePass(ctx) {
+    let { password, repass } = ctx.request.body
+
+    let { userid } = await Jsontoken.getUserToken(ctx)
+
+    if (password.length < 6 || repass.length < 6) {
+      throw new ApiError(ApiErrorNames.UserPassMinLength)
+    }
+
+    if (repass.length > 12 || password.length > 12) {
+      throw new ApiError(ApiErrorNames.UserPassMaxLength)
+    }
+
+    if (repass !== password) {
+      throw new ApiError(ApiErrorNames.UserPassNotEqual)
+    }
+
+    let doc = await User.updateOne({ '_id': userid }, { $set: { userPass: md5Pwd(password) } })
+
+    ctx.body = doc
   }
 
   // 退出
